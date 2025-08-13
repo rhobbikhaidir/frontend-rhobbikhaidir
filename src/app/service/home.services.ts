@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
-import axios from 'axios'
+import { useMutation, useQuery } from '@tanstack/react-query';
+import axios, { AxiosResponse } from 'axios';
+import { Country, Harbor, Product } from '../model/types';
 
 
 const api = axios.create({
@@ -10,21 +11,73 @@ const api = axios.create({
     },
 });
 
-const useGetCountry = (
-    config?: Partial<UseQueryOptions>
+
+export const useGetCountry = (
+    config?: Partial<UseQueryOptions<AxiosResponse<Country[]>>>
 ) => {
-    const query = useQuery({
+    return useQuery<AxiosResponse<Country[]>>({
+        queryKey: ['list-country'],
         queryFn: async () => {
-            const res = await api.get('/negaras');
-            return res.data;
+            const res = await api.get<Country[]>('/negaras');
+            return res;
         },
         ...config,
-        queryKey: ['data-delta-stepper'],
     });
-
-    return query;
 };
 
-export default useGetCountry;
 
+export const useGetHarbor = ({
+    onSuccess = () => { },
+    onError = () => { },
+}) => {
+    const mutation = useMutation({
+        mutationFn: async (id_negara: number) => {
+            const filter = {
+                where: { id_negara },
+            };
+            const res: AxiosResponse<Harbor[]> = await api.get("/pelabuhans", {
+                params: {
+                    filter: JSON.stringify(filter),
+                },
+            });
 
+            return res.data;
+        },
+        onError: () => {
+            onError();
+        },
+        onSuccess: () => {
+            onSuccess();
+        },
+    });
+
+    return mutation;
+};
+
+export const useGetProduct = ({
+    onSuccess = () => { },
+    onError = () => { },
+}) => {
+    const mutation = useMutation({
+        mutationFn: async (id_negara: number) => {
+            const filter = {
+                where: { id_negara },
+            };
+            const res: AxiosResponse<Product[]> = await api.get("/barangs", {
+                params: {
+                    filter: JSON.stringify(filter),
+                },
+            });
+
+            return res.data;
+        },
+        onError: () => {
+            onError();
+        },
+        onSuccess: () => {
+            onSuccess();
+        },
+    });
+
+    return mutation;
+};

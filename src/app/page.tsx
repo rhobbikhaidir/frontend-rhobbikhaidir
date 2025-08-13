@@ -1,21 +1,52 @@
 'use client'
-import { Autocomplete, Box, CircularProgress, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  TextField,
+  Typography
+} from "@mui/material";
 import styles from "./page.module.css";
 import useHome from "./page.hook";
+import { Controller } from "react-hook-form";
 
 export default function Home() {
-  const {listCountry} = useHome()
+  const {
+    listCountry,
+    control,
+    listHarbor,
+    listProduct,
+    isLoadingCountry,
+    isLoadingHarbor,
+    isLoadingProduct,
+    onOpenHarbor,
+    onOpenProduct,
+    watch,
+    setValue,
+    theme,
+    open,
+    handleClickOpen,
+    handleClose,
+    harga,
+    discount,
+    country,
+    harbor,
+    product,
+    description,
+    total,
+    isDirty,
+    isValid,
+  } = useHome();
 
-   const countries = [
-    { label: 'Indonesia', code: 'ID' },
-    { label: 'United States', code: 'US' },
-    { label: 'Japan', code: 'JP' },
-    { label: 'Germany', code: 'DE' },
-    { label: 'Australia', code: 'AU' },
-    { label: 'Brazil', code: 'BR' },
-    { label: 'United Kingdom', code: 'GB' },
-    { label: 'France', code: 'FR' },
-  ];
+  console.log(isValid, 'ini isValid');
+  console.log(isDirty, 'ini isDirty');
+
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -23,84 +54,255 @@ export default function Home() {
           backgroundColor: 'white',
           borderRadius: 2,
           boxShadow: 3,
-            paddingX: 5,
-            pb: 5,
-            gap: 5,
-            display: 'flex',
-            flexDirection: 'column'
+          paddingX: 5,
+          pb: 5,
+          gap: 5,
+          pt: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          width: theme.spacing(100)
         }}>
           <Typography variant="h3" color="black">Techinal Test</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Autocomplete
-          options={countries || []}
-          getOptionLabel={(list) => list.label}
-          isOptionEqualToValue={(option, value) =>
-            option && value ? option.label == value.label : false
-          }
-          // onOpen={() => getRolesListDropdown()}
-          // onInputChange={(_, Role) => setFilter({ ...filter, Role })}
-          // value={rolesList && rolesList.data && rolesList.data.find((e) => e.name == filter.Role)}
-          renderOption={(props, item) => (
-            <li {...props} key={item.code}>
-              {item.label}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              name='Role'
-              label='Negara'
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: ( 
-                  <>
-                    {false && <CircularProgress color='inherit' size={20} />}
-                    {params.InputProps.endAdornment}
-                  </>
-                )
-              }}
+            <Controller
+              name="country"
+              control={control}
+              render={({ field }) => (
+                <Autocomplete
+                  options={listCountry?.data || []}
+                  getOptionLabel={(list) => list?.nama_negara}
+                  isOptionEqualToValue={(option, value) =>
+                    option && value ? option.nama_negara == value.nama_negara : false
+                  }
+                  onChange={(_, country) => {
+                    field.onChange(country);
+                    setValue('harbor', null);
+                    setValue('product', null);
+                    setValue('description', '');
+                    setValue('discount', '');
+                    setValue('harga', '');
+                  }}
+                  value={field.value}
+                  renderOption={(props, item) => (
+                    <li {...props} key={item.id_negara}>
+                      {item.nama_negara}
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name='Negara'
+                      label='Negara'
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {isLoadingCountry && <CircularProgress color='inherit' size={20} />}
+                            {params.InputProps.endAdornment}
+                          </>
+                        )
+                      }}
+                    />
+                  )}
+                />
+              )}
             />
-          )}
-        />
-            <TextField
-              required
-              id="outlined-required"
-              label="Required"
-              defaultValue="Hello World"
+            <Controller
+              name="harbor"
+              control={control}
+              render={({ field }) => (
+                <Autocomplete
+                  options={listHarbor || []}
+                  getOptionLabel={(list) => list?.nama_pelabuhan}
+                  isOptionEqualToValue={(option, value) =>
+                    option && value ? option.nama_pelabuhan == value.nama_pelabuhan : false
+                  }
+                  value={field.value}
+                  onOpen={() => onOpenHarbor(watch('country.id_negara'))}
+                  disabled={!watch('country.id_negara')}
+                  onChange={(_, harbor) => {
+                    field.onChange(harbor);
+                    setValue('product', null)
+                    setValue('description', '');
+                    setValue('discount', '');
+                    setValue('harga', '');
+                  }}
+                  renderOption={(props, item) => (
+                    <li {...props} key={item.id_pelabuhan}>
+                      {item.nama_pelabuhan}
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name='Pelabuhan'
+                      label='Pelabuhan'
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {isLoadingHarbor && <CircularProgress color='inherit' size={20} />}
+                            {params.InputProps.endAdornment}
+                          </>
+                        )
+                      }}
+                    />
+                  )}
+                />
+              )}
             />
-            <TextField
-              disabled
-              id="outlined-disabled"
-              label="Disabled"
-              defaultValue="Hello World"
-            />
-            <TextField
-              id="outlined-password-input"
-              label="Password"
-              type="password"
-              autoComplete="current-password"
-            />
-            <TextField
-              id="outlined-read-only-input"
-              label="Read Only"
-              defaultValue="Hello World"
-              slotProps={{
-                input: {
-                  readOnly: true,
-                },
-              }}
-            />
-            {/* <TextField id="outlined-search" label="Search field" type="search" /> */}
-            {/* <TextField
-              id="outlined-helperText"
-              label="Helper text"
-              defaultValue="Default Value"
-              helperText="Some important text"
-            /> */}
-          </Box>
 
+            <Controller
+              name="product"
+              control={control}
+              render={({ field }) => (
+                <Autocomplete
+                  options={listProduct || []}
+                  getOptionLabel={(list) => list?.nama_barang}
+                  isOptionEqualToValue={(option, value) =>
+                    option && value ? option.nama_barang == value.nama_barang : false
+                  }
+                  value={field.value}
+                  onOpen={() => onOpenProduct(Number(watch('harbor.id_pelabuhan')))}
+                  disabled={!watch('harbor.id_pelabuhan')}
+                  onChange={(_, prodcut) => {
+                    field.onChange(prodcut);
+                    setValue('description', prodcut?.description || '');
+                    setValue('discount', String(prodcut?.diskon) || '');
+                    setValue('harga', String(prodcut?.harga) || '');
+                  }}
+                  renderOption={(props, item) => (
+                    <li {...props} key={item.id_barang}>
+                      {item.nama_barang}
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name='Barang'
+                      label='Barang'
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {isLoadingProduct && <CircularProgress color='inherit' size={20} />}
+                            {params.InputProps.endAdornment}
+                          </>
+                        )
+                      }}
+                    />
+                  )}
+                />
+              )}
+            />
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  required
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  label="Description"
+                  InputLabelProps={{ shrink: true }}
+                  multiline
+                  rows={4}
+                  disabled
+                />
+              )}
+            />
+            <Controller
+              name="discount"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  value={field.value}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      field.onChange(value);
+                    }
+                  }}
+                  label="Discount"
+                />
+              )}
+            />
+            <Controller
+              name="harga"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  value={field.value}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      field.onChange(value);
+                    }
+                  }}
+                  label="Harga"
+
+                />
+              )}
+            />
+            <Controller
+              name="total"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  value={field.value}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      field.onChange(value);
+                    }
+                  }}
+                  label="Total"
+                />
+              )}
+            />
+          </Box>
+          {/* <Box sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end'
+          }}>
+            <Button
+              variant="outlined"
+              onClick={handleClickOpen}
+              disabled={!isValid}
+            >
+              Save
+            </Button>
+          </Box> */}
         </Box>
 
+        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+          <DialogTitle>Detail Data</DialogTitle>
+          <DialogContent dividers>
+            <Typography variant="h6">Country</Typography>
+            <Typography>ID: {country?.id_negara ?? "-"}</Typography>
+            <Typography>Kode: {country?.kode_negara ?? "-"}</Typography>
+            <Typography>Nama: {country?.nama_negara ?? "-"}</Typography>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="h6">Harbor</Typography>
+            <Typography>ID Negara: {harbor?.id_negara ?? "-"}</Typography>
+            <Typography>ID Pelabuhan: {harbor?.id_pelabuhan ?? "-"}</Typography>
+            <Typography>Nama: {harbor?.nama_pelabuhan ?? "-"}</Typography>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="h6">Product</Typography>
+            <Typography>ID Barang: {product?.id_barang ?? "-"}</Typography>
+            <Typography>Nama: {product?.nama_barang ?? "-"}</Typography>
+            <Typography>Deskripsi: {product?.description ?? "-"}</Typography>
+            <Typography>Harga: {product?.harga ?? "-"}</Typography>
+            <Typography>Diskon: {product?.diskon ?? "-"}</Typography>
+            <Typography>ID Pelabuhan: {product?.id_pelabuhan ?? "-"}</Typography>
+            <Divider sx={{ my: 2 }} />
+            <Typography>Description: {description ?? "-"}</Typography>
+            <Typography>Discount: {discount ?? "-"}</Typography>
+            <Typography>Harga: {harga ?? "-"}</Typography>
+            <Typography>Total: {total ?? "-"}</Typography>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
 
